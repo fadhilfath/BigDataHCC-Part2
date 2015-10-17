@@ -3,17 +3,17 @@
 Pick one question class and build an exploratory visualization interface for it.
 The question class you pick must have at least three variables that can be changed.
 
-## (Question class)
+## How many bussiness are there in X state with Y Ambience for each star rating?
 
 <div style="border:1px grey solid; padding:5px;">
     <div><h5>X</h5>
-        <input id="arg1" type="text" value="something"/>
+        <input id="arg1" type="text" value="something"/><p>(state)</p>
     </div>
     <div><h5>Y</h5>
-        <input id="arg2" type="text" value="something"/>
+        <input id="arg2" type="text" value="something"/><p>(Ambience)</p>
     </div>
     <div><h5>Z</h5>
-        <input id="arg2" type="text" value="something"/>
+        <input id="arg3" type="text" value="something"/><p>(asc / desc order)</p>
     </div>    
     <div style="margin:20px;">
         <button id="viz">Vizualize</button>
@@ -65,7 +65,7 @@ function viz(arg1, arg2, arg3){
     }
 
     function computeWidth(d, i) {        
-        return i * 20 + 20
+        return d[1].length * 3
     }
 
     function computeY(d, i) {
@@ -80,19 +80,50 @@ function viz(arg1, arg2, arg3){
         return 'f' + i
     }
 
+
+    
+
+
+    var am = _.filter(items,function(d){
+        if(d.attributes){
+            return (d.state == arg1 && d.attributes && d.attributes.Ambience && d.attributes.Ambience[arg2]);
+        }
+    })
+
+    var stars = _.groupBy(am,'stars');
+
+    if(arg3 == "ascending"){
+        var pairs = _.sortBy(_.pairs(stars),function(n){
+            return n[0]
+        })
+    }else if(arg3 === 'descending'){
+        var pairs = _.sortBy(_.pairs(stars),function(n){
+            return n[0]
+        }).reverse()
+    }
+    /*var pairs;    
+    pairs = _.sortBy(_.pairs(stars),function(n){
+            return n[0]
+        })*/
+
+
     // TODO: modify the logic here based on your UI
     // take the first 20 items to visualize    
-    items = _.take(items, 20)
+   
+    console.log(pairs);
+    
+    var viz = _.map(pairs, function(d, i){                
+                    return {
+                        x: computeX(d, i),
+                        y: computeY(d, i),
+                        width: computeWidth(d, i),
+                        color: computeColor(d, i),
+                        label: d[0]
+                    }
+                 })
 
-    var viz = _.map(items, function(d, i){                
-                return {
-                    x: computeX(d, i),
-                    y: computeY(d, i),
-                    width: computeWidth(d, i),
-                    color: computeColor(d, i),
-                    label: computeLabel(d, i)
-                }
-             })
+
+    
     console.log('viz', viz)
 
     var result = _.map(viz, function(d){
@@ -105,9 +136,9 @@ function viz(arg1, arg2, arg3){
 }
 
 $('button#viz').click(function(){    
-    var arg1 = 'TODO'
-    var arg2 = 'TODO'
-    var arg3 = 'TODO'    
+    var arg1 = $('input#arg1').val()
+    var arg2 = $('input#arg2').val()
+    var arg3 = $('input#arg3').val()    
     viz(arg1, arg2, arg3)
 })  
 
